@@ -1,9 +1,10 @@
+
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DeleteView, CreateView
 
-from .forms import AddPostForm
+from .forms import AddPostForm, AddUserForm
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import *
@@ -75,7 +76,18 @@ class WomenCategory(DataMixin, ListView):
         c_dic = self.get_user_context(title="Категория - " + str(context['posts'][0].cat_slug),
                                       cat_selected=self.kwargs[
                                           'cat_slug_id'])
-        return dict(list(context.items())+list(c_dic.items()))
+        return dict(list(context.items()) + list(c_dic.items()))
 
     def get_queryset(self):
         return Women.objects.filter(cat_slug_id=self.kwargs['cat_slug_id'], is_published=True)
+
+
+class RegisterUser(DataMixin, CreateView):
+    form_class = AddUserForm
+    template_name = "women/register.html"
+    success_url = reverse_lazy('login')
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_dic = self.get_user_context(title='Регистрация')
+        return dict(list(context.items()) + list(c_dic.items()))
