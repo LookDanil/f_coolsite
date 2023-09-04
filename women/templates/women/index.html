@@ -1,0 +1,36 @@
+{%extends 'women/base.html' %}
+{%block content %}
+<div class="content">
+<ul>
+    {% for post in posts %}
+    <li class="post">
+        {% if post.photo %}
+        <div class="post_photo-block"> <img class="women_photo" src="{{ post.photo.url}}" ></div>
+        {% endif %}
+        <div class="content_post">
+            <h2 class="title_post">{{post.title}}</h2>
+        <p>Категория: {{post.cat_slug}}</p>
+        <p>Дата: {{post.time_upload|date:"d-m-Y H:i:s"}}</p>
+        {% autoescape off %}
+        <p class="pretext_post">{{post.content|linebreaks|truncatewords:50}}</p>
+        {% endautoescape %}
+            <a href="{{ post.get_absolute_url }}"><div class="read_post">Читать пост</div></a>
+            </div>
+    </li>
+    {% endfor %}
+</ul>
+    {% if page_obj.has_other_pages %}
+    <div class="list-style">
+        <ul>
+            {% for p in paginator.page_range %}
+            {% if page_obj.number == p %}
+                <li class="page_active"> {{p}}</li>
+            {% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+            <li><a href="?page={{ p }}">{{ p }}</a> </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{%endblock content %}
