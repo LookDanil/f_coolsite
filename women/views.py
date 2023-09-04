@@ -1,10 +1,12 @@
-
+from django.contrib.auth import logout, login
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.views import LoginView
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DeleteView, CreateView
 
-from .forms import AddPostForm, AddUserForm
+from .forms import AddPostForm, AddUserForm, LoginuserForm
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import *
@@ -43,10 +45,6 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
 
 def contact(request):
     return HttpResponse("Страница обратной связи")
-
-
-def login(request):
-    return HttpResponse("Страница авторизации")
 
 
 def pageNotFound(request, exception):
@@ -91,3 +89,24 @@ class RegisterUser(DataMixin, CreateView):
         context = super().get_context_data(**kwargs)
         c_dic = self.get_user_context(title='Регистрация')
         return dict(list(context.items()) + list(c_dic.items()))
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        return redirect('home')
+
+
+class LoginUser(DataMixin, LoginView):
+    form_class = LoginuserForm
+    template_name = "women/login.html"
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_dic = self.get_user_context(title='Авторизация')
+        return dict(list(context.items()) + list(c_dic.items()))
+
+    def get_success_url(self):
+        return reverse_lazy('home')
+
+def logoutuser(request):
+    logout(request)
+    return redirect('login')
